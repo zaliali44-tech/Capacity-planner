@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Long-Term Capacity Planner</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
   <style>
     :root{
       --bg:#f4f7fb;
@@ -25,9 +29,7 @@
       --radius:20px;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
@@ -37,7 +39,7 @@
     }
 
     .container{
-      width:min(1500px, 94%);
+      width:min(1520px, 94%);
       margin:24px auto 40px;
     }
 
@@ -88,9 +90,7 @@
       transition:0.2s ease;
     }
 
-    .btn:hover{
-      transform:translateY(-1px);
-    }
+    .btn:hover{ transform:translateY(-1px); }
 
     .btn-light{
       background:#fff;
@@ -101,6 +101,10 @@
       background:rgba(255,255,255,0.14);
       color:#fff;
       border:1px solid rgba(255,255,255,0.24);
+    }
+
+    .btn-solid{
+      color:#fff;
     }
 
     .pill-row{
@@ -125,17 +129,9 @@
       gap:18px;
     }
 
-    .grid-2{
-      grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-
-    .grid-3{
-      grid-template-columns:repeat(3, minmax(0,1fr));
-    }
-
-    .grid-4{
-      grid-template-columns:repeat(4, minmax(0,1fr));
-    }
+    .grid-2{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .grid-3{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+    .grid-4{ grid-template-columns:repeat(4, minmax(0,1fr)); }
 
     .card{
       background:var(--card);
@@ -165,12 +161,6 @@
     .form-grid{
       display:grid;
       grid-template-columns:repeat(2, minmax(0,1fr));
-      gap:12px;
-    }
-
-    .form-grid-3{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
       gap:12px;
     }
 
@@ -271,7 +261,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1600px;
+      min-width:1400px;
       background:#fff;
     }
 
@@ -295,9 +285,7 @@
       z-index:1;
     }
 
-    tr:hover td{
-      background:#fcfdff;
-    }
+    tr:hover td{ background:#fcfdff; }
 
     .status{
       display:inline-block;
@@ -307,38 +295,13 @@
       font-weight:700;
     }
 
-    .safe{
-      background:var(--soft-success);
-      color:#166534;
-    }
-
-    .risk{
-      background:var(--soft-warning);
-      color:#92400e;
-    }
-
-    .gap{
-      background:var(--soft-danger);
-      color:#991b1b;
-    }
-
-    .chart-box{
-      height:320px;
-      border:1px dashed #cbd5e1;
-      border-radius:16px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      color:var(--muted);
-      background:linear-gradient(180deg,#fff,#f8fbff);
-      font-weight:700;
-      padding:20px;
-    }
+    .safe{ background:var(--soft-success); color:#166534; }
+    .risk{ background:var(--soft-warning); color:#92400e; }
+    .gap{ background:var(--soft-danger); color:#991b1b; }
 
     .info-strip{
       display:grid;
-      grid-template-columns:repeat(4, minmax(0,1fr));
+      grid-template-columns:repeat(5, minmax(0,1fr));
       gap:12px;
       margin-top:16px;
     }
@@ -363,6 +326,17 @@
       font-weight:800;
     }
 
+    .inline-note{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .chart-card canvas{
+      width:100% !important;
+      height:320px !important;
+    }
+
     details{
       border:1px solid var(--line);
       border-radius:16px;
@@ -380,13 +354,9 @@
       border-bottom:1px solid var(--line);
     }
 
-    summary::-webkit-details-marker{
-      display:none;
-    }
+    summary::-webkit-details-marker{ display:none; }
 
-    .glossary-content{
-      padding:18px 20px;
-    }
+    .glossary-content{ padding:18px 20px; }
 
     .glossary-grid{
       display:grid;
@@ -432,18 +402,24 @@
       line-height:1.6;
     }
 
-    .success-text{ color:var(--success); }
-    .danger-text{ color:var(--danger); }
-    .accent-text{ color:var(--warning); }
-    .primary-text{ color:var(--primary); }
+    .value-success{ color:var(--success); }
+    .value-danger{ color:var(--danger); }
+    .value-accent{ color:var(--warning); }
+    .value-primary{ color:var(--primary); }
 
-    @media (max-width:1300px){
-      .summary-grid{
-        grid-template-columns:repeat(4, minmax(0,1fr));
-      }
-      .info-strip{
-        grid-template-columns:repeat(2, minmax(0,1fr));
-      }
+    .small-input{
+      width:100px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      font-size:13px;
+    }
+
+    .muted{ color:var(--muted); }
+
+    @media (max-width:1400px){
+      .summary-grid{ grid-template-columns:repeat(4, minmax(0,1fr)); }
+      .info-strip{ grid-template-columns:repeat(3, minmax(0,1fr)); }
     }
 
     @media (max-width:1000px){
@@ -451,67 +427,57 @@
       .grid-2,
       .grid-4,
       .form-grid,
-      .form-grid-3,
       .glossary-grid{
         grid-template-columns:1fr;
       }
-
-      .summary-grid{
-        grid-template-columns:repeat(2, minmax(0,1fr));
-      }
-
-      .hero h1{
-        font-size:26px;
-      }
+      .summary-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .info-strip{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .hero h1{ font-size:26px; }
     }
 
     @media (max-width:640px){
       .summary-grid,
-      .info-strip{
-        grid-template-columns:1fr;
-      }
+      .info-strip{ grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
 
-    <!-- HERO -->
     <section class="hero">
       <div class="hero-top">
         <div>
           <h1>Long-Term Capacity Planner</h1>
           <p>
-            Strategic week-wise and month-wise Workforce Management capacity planning dashboard with
-            custom week cycle, training pipeline visibility, weighted month roll-up, attrition and shrinkage targets,
-            and export-ready planning structure.
+            Strategic week-wise and month-wise Workforce Management capacity planning dashboard with custom week cycle,
+            weighted month roll-up, training pipeline visibility, target shrinkage and attrition tracking,
+            and export-ready model output.
           </p>
           <div class="pill-row">
             <span class="pill">Weekly View</span>
             <span class="pill">Monthly Weighted View</span>
             <span class="pill">Training Pipeline</span>
+            <span class="pill">Excel Export</span>
             <span class="pill">Formula Glossary</span>
-            <span class="pill">Excel Model Ready</span>
           </div>
         </div>
         <div class="hero-actions">
-          <button class="btn btn-light">Load Sample Data</button>
-          <button class="btn btn-outline">Reset</button>
-          <button class="btn btn-outline">Export CSV</button>
-          <button class="btn btn-outline">Export Excel Model</button>
+          <button class="btn btn-light" id="loadSampleBtn">Load Sample Data</button>
+          <button class="btn btn-outline" id="resetBtn">Reset</button>
+          <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
+          <button class="btn btn-outline" id="exportExcelBtn">Export Excel Model</button>
         </div>
       </div>
     </section>
 
-    <!-- CONFIGURATION -->
     <section class="grid grid-3">
       <div class="card">
         <h3>Planning Setup</h3>
-        <div class="card-sub">Control planning mode, date setup, week cycle, and planning horizon.</div>
+        <div class="card-sub">Control planning mode, date setup, week cycle, starting HC, and planning horizon.</div>
         <div class="form-grid">
           <div class="field">
             <label>Planning Mode</label>
-            <select>
+            <select id="planningMode">
               <option>Volume Based</option>
               <option>HC Based</option>
               <option>Hybrid</option>
@@ -519,19 +485,19 @@
           </div>
           <div class="field">
             <label>Display View</label>
-            <select>
+            <select id="displayView">
+              <option>Combined View</option>
               <option>Weekly View</option>
               <option>Monthly View</option>
-              <option>Combined View</option>
             </select>
           </div>
           <div class="field">
             <label>Planning Start Date</label>
-            <input type="date" value="2026-01-02">
+            <input type="date" id="planningStartDate">
           </div>
           <div class="field">
             <label>Week Pattern</label>
-            <select>
+            <select id="weekPattern">
               <option>Mon-Sun</option>
               <option>Sun-Sat</option>
               <option>Fri-Thu</option>
@@ -540,22 +506,21 @@
           </div>
           <div class="field">
             <label>Planning Horizon (Weeks)</label>
-            <input type="number" value="16">
+            <input type="number" id="planningHorizon" min="1" max="104" step="1">
           </div>
           <div class="field">
             <label>Monthly Roll-Up</label>
-            <select>
+            <select id="rollupMode">
               <option>Calendar Weighted</option>
-              <option>Primary Month Tag</option>
             </select>
           </div>
           <div class="field">
-            <label>Scenario Name</label>
-            <input type="text" value="Base Case">
+            <label>Starting Opening HC</label>
+            <input type="number" id="startingOpeningHC" min="0" step="1">
           </div>
           <div class="field">
             <label>Buffer %</label>
-            <input type="number" value="0">
+            <input type="number" id="bufferPct" min="0" step="0.1">
           </div>
         </div>
       </div>
@@ -566,162 +531,126 @@
         <div class="form-grid">
           <div class="field">
             <label>Occupancy %</label>
-            <input type="number" value="85">
+            <input type="number" id="occupancyPct" min="1" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Productive Hours / HC / Week</label>
-            <input type="number" value="37.5">
+            <input type="number" id="productiveHoursPerHC" min="1" step="0.1">
           </div>
           <div class="field">
             <label>Target Shrinkage %</label>
-            <input type="number" value="20">
+            <input type="number" id="targetShrinkagePct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Planned Shrinkage %</label>
-            <input type="number" value="12">
+            <input type="number" id="plannedShrinkagePct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Unplanned Shrinkage %</label>
-            <input type="number" value="8">
+            <input type="number" id="unplannedShrinkagePct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Total Shrinkage %</label>
-            <input type="number" value="20" readonly>
+            <input type="number" id="totalShrinkagePct" readonly>
           </div>
           <div class="field">
             <label>Target Attrition %</label>
-            <input type="number" value="3">
+            <input type="number" id="targetAttritionPct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Expected Attrition %</label>
-            <input type="number" value="3">
+            <input type="number" id="expectedAttritionPct" min="0" max="100" step="0.1">
           </div>
         </div>
       </div>
 
       <div class="card">
         <h3>Training & Support Assumptions</h3>
-        <div class="card-sub">Capture training duration, nesting ramp, pass rate, and support HC productivity logic.</div>
+        <div class="card-sub">Training duration, nesting ramp, pass rate, and support HC productivity treatment.</div>
         <div class="form-grid">
           <div class="field">
             <label>Training Duration (Weeks)</label>
-            <input type="number" value="4">
+            <input type="number" id="trainingDurationWeeks" min="1" max="52" step="1">
           </div>
           <div class="field">
             <label>Nesting Duration (Weeks)</label>
-            <input type="number" value="2">
+            <input type="number" id="nestingDurationWeeks" min="1" max="52" step="1">
           </div>
           <div class="field">
             <label>Pass Rate %</label>
-            <input type="number" value="90">
+            <input type="number" id="passRatePct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
             <label>Nesting Productivity %</label>
-            <input type="number" value="65">
+            <input type="number" id="nestingProductivityPct" min="0" max="100" step="0.1">
           </div>
           <div class="field">
-            <label>SME Productive %</label>
-            <input type="number" value="40">
-          </div>
-          <div class="field">
-            <label>Off-Roster Productive %</label>
-            <input type="number" value="25">
-          </div>
-          <div class="field">
-            <label>SME Productive Hours / Week</label>
-            <input type="number" value="15">
-          </div>
-          <div class="field">
-            <label>Off-Roster Productive Hours / Week</label>
-            <input type="number" value="9">
+            <label>Support Productivity Mode</label>
+            <select id="supportMode">
+              <option>Percent</option>
+              <option>Hours</option>
+            </select>
           </div>
           <div class="field">
             <label>OT to HC Conversion Base</label>
-            <input type="number" value="37.5">
+            <input type="number" id="otBaseHours" min="1" step="0.1">
           </div>
           <div class="field">
-            <label>Working Days / Week</label>
-            <input type="number" value="5">
+            <label>SME Productive %</label>
+            <input type="number" id="smeProductivePct" min="0" max="100" step="0.1">
+          </div>
+          <div class="field">
+            <label>Off-Roster Productive %</label>
+            <input type="number" id="offRosterProductivePct" min="0" max="100" step="0.1">
+          </div>
+          <div class="field">
+            <label>SME Productive Hours / Week</label>
+            <input type="number" id="smeProductiveHours" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label>Off-Roster Productive Hours / Week</label>
+            <input type="number" id="offRosterProductiveHours" min="0" step="0.1">
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SUMMARY CARDS -->
-    <section class="summary-grid">
-      <div class="metric">
-        <div class="label">Required HC</div>
-        <div class="value primary-text">248</div>
-        <div class="mini">Current week requirement</div>
-      </div>
-      <div class="metric">
-        <div class="label">Final Available HC</div>
-        <div class="value">194.4</div>
-        <div class="mini">After shrinkage and OT</div>
-      </div>
-      <div class="metric">
-        <div class="label">Net Gap</div>
-        <div class="value danger-text">-53.6</div>
-        <div class="mini">Deficit against requirement</div>
-      </div>
-      <div class="metric">
-        <div class="label">Training HC</div>
-        <div class="value accent-text">33</div>
-        <div class="mini">Currently in training</div>
-      </div>
-      <div class="metric">
-        <div class="label">Graduate HC</div>
-        <div class="value success-text">18</div>
-        <div class="mini">Upcoming release from training</div>
-      </div>
-      <div class="metric">
-        <div class="label">Nesting HC</div>
-        <div class="value">12</div>
-        <div class="mini">In partial productivity stage</div>
-      </div>
-      <div class="metric">
-        <div class="label">Attrition %</div>
-        <div class="value danger-text">3.4%</div>
-        <div class="mini">Against target 3.0%</div>
-      </div>
-      <div class="metric">
-        <div class="label">Shrinkage %</div>
-        <div class="value accent-text">20.8%</div>
-        <div class="mini">Against target 20.0%</div>
-      </div>
-    </section>
+    <section class="summary-grid" id="summaryCards"></section>
 
-    <!-- DATE MAPPING -->
     <section class="card">
       <div class="section-title">
         <div>
           <h2>Generated Planning Calendar</h2>
-          <p>Week ranges are driven by the user-selected planning start date and week cycle.</p>
+          <p>Week ranges are driven by the selected start date and then rolled forward by 7 days.</p>
         </div>
       </div>
 
       <div class="info-strip">
         <div class="info-box">
           <div class="k">Planning Start</div>
-          <div class="v">02 Jan 2026</div>
+          <div class="v" id="calendarPlanningStart">-</div>
         </div>
         <div class="info-box">
           <div class="k">Week Pattern</div>
-          <div class="v">Fri-Thu</div>
+          <div class="v" id="calendarWeekPattern">-</div>
         </div>
         <div class="info-box">
           <div class="k">Weeks Generated</div>
-          <div class="v">16</div>
+          <div class="v" id="calendarWeeksGenerated">-</div>
         </div>
         <div class="info-box">
           <div class="k">Monthly Roll-Up</div>
-          <div class="v">Calendar Weighted</div>
+          <div class="v" id="calendarRollup">-</div>
+        </div>
+        <div class="info-box">
+          <div class="k">Support Mode</div>
+          <div class="v" id="calendarSupportMode">-</div>
         </div>
       </div>
+      <div class="inline-note" id="weekPatternNote"></div>
     </section>
 
-    <!-- DEMAND + SUPPLY -->
-    <section class="grid grid-2" style="margin-top:18px;">
+    <section class="grid grid-2" id="weeklySections">
       <div class="card">
         <div class="section-title">
           <div>
@@ -730,7 +659,7 @@
           </div>
         </div>
         <div class="table-wrap">
-          <table style="min-width:1200px;">
+          <table>
             <thead>
               <tr>
                 <th>Week</th>
@@ -738,53 +667,12 @@
                 <th>End Date</th>
                 <th>Forecast Volume</th>
                 <th>AHT (Sec)</th>
-                <th>Manual HC Add-On</th>
+                <th>Manual Required HC</th>
                 <th>Required Hours</th>
                 <th>Required HC</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>2026-W01</td>
-                <td>02-Jan-26</td>
-                <td>08-Jan-26</td>
-                <td><input type="number" value="125000"></td>
-                <td><input type="number" value="420"></td>
-                <td><input type="number" value="5"></td>
-                <td>14,583</td>
-                <td>248</td>
-              </tr>
-              <tr>
-                <td>2026-W02</td>
-                <td>09-Jan-26</td>
-                <td>15-Jan-26</td>
-                <td><input type="number" value="128500"></td>
-                <td><input type="number" value="415"></td>
-                <td><input type="number" value="5"></td>
-                <td>14,816</td>
-                <td>251</td>
-              </tr>
-              <tr>
-                <td>2026-W03</td>
-                <td>16-Jan-26</td>
-                <td>22-Jan-26</td>
-                <td><input type="number" value="130200"></td>
-                <td><input type="number" value="418"></td>
-                <td><input type="number" value="6"></td>
-                <td>15,119</td>
-                <td>255</td>
-              </tr>
-              <tr>
-                <td>2026-W04</td>
-                <td>23-Jan-26</td>
-                <td>29-Jan-26</td>
-                <td><input type="number" value="127000"></td>
-                <td><input type="number" value="410"></td>
-                <td><input type="number" value="4"></td>
-                <td>14,464</td>
-                <td>244</td>
-              </tr>
-            </tbody>
+            <tbody id="demandTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -793,11 +681,11 @@
         <div class="section-title">
           <div>
             <h2>Weekly Supply Plan</h2>
-            <p>Workforce-side inputs including classes, transfers, support HC, and overtime.</p>
+            <p>Workforce-side inputs including classes, transfers, support HC, attrition, and overtime.</p>
           </div>
         </div>
         <div class="table-wrap">
-          <table style="min-width:1350px;">
+          <table>
             <thead>
               <tr>
                 <th>Week</th>
@@ -812,81 +700,25 @@
                 <th>Target Attrition %</th>
                 <th>Actual Attrition HC</th>
                 <th>Actual Attrition %</th>
+                <th>Target Shrinkage %</th>
+                <th>Actual Shrinkage %</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>2026-W01</td>
-                <td><input type="number" value="250"></td>
-                <td><input type="number" value="20"></td>
-                <td><input type="number" value="18"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="6"></td>
-                <td><input type="number" value="4"></td>
-                <td><input type="number" value="240"></td>
-                <td>3.0%</td>
-                <td><input type="number" value="5"></td>
-                <td>2.0%</td>
-              </tr>
-              <tr>
-                <td>2026-W02</td>
-                <td><input type="number" value="245"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="2"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="6"></td>
-                <td><input type="number" value="4"></td>
-                <td><input type="number" value="260"></td>
-                <td>3.0%</td>
-                <td><input type="number" value="4"></td>
-                <td>1.6%</td>
-              </tr>
-              <tr>
-                <td>2026-W03</td>
-                <td><input type="number" value="243"></td>
-                <td><input type="number" value="15"></td>
-                <td><input type="number" value="15"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="1"></td>
-                <td><input type="number" value="7"></td>
-                <td><input type="number" value="4"></td>
-                <td><input type="number" value="220"></td>
-                <td>3.0%</td>
-                <td><input type="number" value="3"></td>
-                <td>1.2%</td>
-              </tr>
-              <tr>
-                <td>2026-W04</td>
-                <td><input type="number" value="239"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="0"></td>
-                <td><input type="number" value="7"></td>
-                <td><input type="number" value="5"></td>
-                <td><input type="number" value="180"></td>
-                <td>3.0%</td>
-                <td><input type="number" value="4"></td>
-                <td>1.7%</td>
-              </tr>
-            </tbody>
+            <tbody id="supplyTableBody"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- TRAINING PIPELINE -->
-    <section class="card" style="margin-top:18px;">
+    <section class="card" style="margin-top:18px;" id="trainingSection">
       <div class="section-title">
         <div>
           <h2>Training Pipeline View</h2>
-          <p>Track how classes move through training, graduate, enter nesting, and become productive.</p>
+          <p>Track how classes move through training, graduate, enter nesting, and become fully productive.</p>
         </div>
       </div>
       <div class="table-wrap">
-        <table style="min-width:1450px;">
+        <table>
           <thead>
             <tr>
               <th>Week</th>
@@ -903,74 +735,16 @@
               <th>Actual Attrition %</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>2026-W01</td>
-              <td>02-Jan-26</td>
-              <td>08-Jan-26</td>
-              <td>18</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>0</td>
-              <td>20.0%</td>
-              <td>19.5%</td>
-              <td>3.0%</td>
-              <td>2.0%</td>
-            </tr>
-            <tr>
-              <td>2026-W02</td>
-              <td>09-Jan-26</td>
-              <td>15-Jan-26</td>
-              <td>18</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>0</td>
-              <td>20.0%</td>
-              <td>20.4%</td>
-              <td>3.0%</td>
-              <td>1.6%</td>
-            </tr>
-            <tr>
-              <td>2026-W03</td>
-              <td>16-Jan-26</td>
-              <td>22-Jan-26</td>
-              <td>33</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>0</td>
-              <td>20.0%</td>
-              <td>21.0%</td>
-              <td>3.0%</td>
-              <td>1.2%</td>
-            </tr>
-            <tr>
-              <td>2026-W04</td>
-              <td>23-Jan-26</td>
-              <td>29-Jan-26</td>
-              <td>33</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>0</td>
-              <td>20.0%</td>
-              <td>20.8%</td>
-              <td>3.0%</td>
-              <td>1.7%</td>
-            </tr>
-          </tbody>
+          <tbody id="trainingTableBody"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- WEEKLY CAPACITY VIEW -->
-    <section class="card" style="margin-top:18px;">
+    <section class="card" style="margin-top:18px;" id="weeklyCapacitySection">
       <div class="section-title">
         <div>
           <h2>Weekly Capacity View</h2>
-          <p>Detailed weekly capacity output including targets, pipeline, productivity support, and final gap.</p>
+          <p>Detailed weekly output including targets, pipeline, support productivity, effective HC, and final gap.</p>
         </div>
       </div>
       <div class="table-wrap">
@@ -992,9 +766,9 @@
               <th>Target Shrink %</th>
               <th>Actual Shrink %</th>
               <th>SME HC</th>
-              <th>SME Prod %</th>
+              <th>SME Eff HC</th>
               <th>Off-Roster HC</th>
-              <th>Off-Roster Prod %</th>
+              <th>Off-Roster Eff HC</th>
               <th>Gross Available HC</th>
               <th>Net HC Before Shrinkage</th>
               <th>Effective HC</th>
@@ -1002,147 +776,33 @@
               <th>OT Eq HC</th>
               <th>Final Available HC</th>
               <th>Gap</th>
+              <th>End HC</th>
               <th>Status</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>2026-W01</td>
-              <td>02-Jan-26</td>
-              <td>08-Jan-26</td>
-              <td>248</td>
-              <td>250</td>
-              <td>18</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>5</td>
-              <td>3.0%</td>
-              <td>2.0%</td>
-              <td>20.0%</td>
-              <td>19.5%</td>
-              <td>6</td>
-              <td>40%</td>
-              <td>4</td>
-              <td>25%</td>
-              <td>245</td>
-              <td>235</td>
-              <td>188.0</td>
-              <td>240</td>
-              <td>6.4</td>
-              <td>194.4</td>
-              <td>-53.6</td>
-              <td><span class="status gap">Gap</span></td>
-            </tr>
-            <tr>
-              <td>2026-W02</td>
-              <td>09-Jan-26</td>
-              <td>15-Jan-26</td>
-              <td>251</td>
-              <td>245</td>
-              <td>18</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>4</td>
-              <td>3.0%</td>
-              <td>1.6%</td>
-              <td>20.0%</td>
-              <td>20.4%</td>
-              <td>6</td>
-              <td>40%</td>
-              <td>4</td>
-              <td>25%</td>
-              <td>243</td>
-              <td>233</td>
-              <td>186.4</td>
-              <td>260</td>
-              <td>6.9</td>
-              <td>193.3</td>
-              <td>-57.7</td>
-              <td><span class="status gap">Gap</span></td>
-            </tr>
-            <tr>
-              <td>2026-W03</td>
-              <td>16-Jan-26</td>
-              <td>22-Jan-26</td>
-              <td>255</td>
-              <td>243</td>
-              <td>33</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>3</td>
-              <td>3.0%</td>
-              <td>1.2%</td>
-              <td>20.0%</td>
-              <td>21.0%</td>
-              <td>7</td>
-              <td>40%</td>
-              <td>4</td>
-              <td>25%</td>
-              <td>239</td>
-              <td>228</td>
-              <td>182.4</td>
-              <td>220</td>
-              <td>5.9</td>
-              <td>188.3</td>
-              <td>-66.7</td>
-              <td><span class="status gap">Gap</span></td>
-            </tr>
-            <tr>
-              <td>2026-W04</td>
-              <td>23-Jan-26</td>
-              <td>29-Jan-26</td>
-              <td>244</td>
-              <td>239</td>
-              <td>33</td>
-              <td>0</td>
-              <td>0</td>
-              <td>0.0</td>
-              <td>4</td>
-              <td>3.0%</td>
-              <td>1.7%</td>
-              <td>20.0%</td>
-              <td>20.8%</td>
-              <td>7</td>
-              <td>40%</td>
-              <td>5</td>
-              <td>25%</td>
-              <td>235</td>
-              <td>223</td>
-              <td>178.4</td>
-              <td>180</td>
-              <td>4.8</td>
-              <td>183.2</td>
-              <td>-60.8</td>
-              <td><span class="status gap">Gap</span></td>
-            </tr>
-          </tbody>
+          <tbody id="weeklyCapacityBody"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- CHARTS -->
     <section class="grid grid-2" style="margin-top:18px;">
-      <div class="card">
+      <div class="card chart-card">
         <h3>Required HC vs Final Available HC</h3>
-        <div class="card-sub">Weekly comparison of requirement, effective supply, and gap after OT.</div>
-        <div class="chart-box">Chart placeholder: Required HC vs Final Available HC by Week</div>
+        <div class="card-sub">Weekly comparison of requirement against final capacity after shrinkage and OT.</div>
+        <canvas id="capacityChart"></canvas>
       </div>
-      <div class="card">
+      <div class="card chart-card">
         <h3>Training, Graduation, and Attrition Trend</h3>
-        <div class="card-sub">Track pipeline movement and workforce losses across the planning horizon.</div>
-        <div class="chart-box">Chart placeholder: Training HC, Graduate HC, Nesting HC, Attrition HC</div>
+        <div class="card-sub">Track training HC, graduate HC, nesting HC, and attrition HC by week.</div>
+        <canvas id="pipelineChart"></canvas>
       </div>
     </section>
 
-    <!-- MONTHLY SUMMARY -->
-    <section class="card" style="margin-top:18px;">
+    <section class="card" style="margin-top:18px;" id="monthlySection">
       <div class="section-title">
         <div>
           <h2>Monthly Weighted Summary</h2>
-          <p>Month view should combine overlapping weeks based on actual calendar day allocation and weighted logic.</p>
+          <p>Month view combines overlapping weeks using actual calendar-day allocation, not a simple average.</p>
         </div>
       </div>
       <div class="table-wrap">
@@ -1173,79 +833,27 @@
               <th>End Month HC</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Jan-26</td>
-              <td>28</td>
-              <td>249.5</td>
-              <td>189.8</td>
-              <td>-59.7</td>
-              <td>250</td>
-              <td>25.5</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>16</td>
-              <td>3.0%</td>
-              <td>1.6%</td>
-              <td>20.0%</td>
-              <td>20.4%</td>
-              <td>6.5</td>
-              <td>2.6</td>
-              <td>4.3</td>
-              <td>1.1</td>
-              <td>900</td>
-              <td>24.0</td>
-              <td>239</td>
-            </tr>
-            <tr>
-              <td>Feb-26</td>
-              <td>28</td>
-              <td>256.2</td>
-              <td>214.6</td>
-              <td>-41.6</td>
-              <td>239</td>
-              <td>18.0</td>
-              <td>14.4</td>
-              <td>10.2</td>
-              <td>6.6</td>
-              <td>14</td>
-              <td>3.0%</td>
-              <td>2.4%</td>
-              <td>20.0%</td>
-              <td>19.8%</td>
-              <td>7.0</td>
-              <td>2.8</td>
-              <td>4.8</td>
-              <td>1.2</td>
-              <td>720</td>
-              <td>19.2</td>
-              <td>248</td>
-            </tr>
-          </tbody>
+          <tbody id="monthlyTableBody"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- EXPORT CENTER -->
     <section class="card" style="margin-top:18px;">
       <h3>Export Center</h3>
       <div class="card-sub">
-        Export the planner for reporting, dashboard sharing, or Excel-based model adjustments using the same user assumptions and logic.
+        Export the planner for reporting or to continue working in Excel with structured inputs and calculated output.
       </div>
       <div class="grid grid-4">
-        <button class="btn" style="background:var(--primary); color:#fff;">Export Dashboard CSV</button>
-        <button class="btn" style="background:var(--secondary); color:#fff;">Export Excel Model</button>
-        <button class="btn" style="background:var(--accent); color:#fff;">Download Sample Template</button>
-        <button class="btn" style="background:#334155; color:#fff;">Save Scenario</button>
+        <button class="btn btn-solid" style="background:var(--primary);" id="exportCsvBtn2">Export Dashboard CSV</button>
+        <button class="btn btn-solid" style="background:var(--secondary);" id="exportExcelBtn2">Export Excel Model</button>
+        <button class="btn btn-solid" style="background:var(--accent);" id="loadSampleBtn2">Reload Sample Data</button>
+        <button class="btn btn-solid" style="background:#334155;" id="recalcBtn">Recalculate</button>
       </div>
       <div class="footer-note">
-        Recommended workbook tabs: Assumptions, Planning Calendar, Demand Plan, Supply Plan, Training Pipeline,
-        Weekly Capacity, Monthly Weighted Summary, Formula Glossary.
+        Excel export includes Assumptions, Weekly Input, Weekly Calc, Monthly Summary, and Formula Glossary sheets.
       </div>
     </section>
 
-    <!-- FORMULA GLOSSARY -->
     <section style="margin-top:18px;">
       <details open>
         <summary>Formula Glossary</summary>
@@ -1259,8 +867,14 @@
 
             <div class="formula-card">
               <h4>Volume-Based Required HC</h4>
-              <p>Uses required hours, productive hours, occupancy, and any buffer to estimate required HC.</p>
-              <span class="formula">Required HC = (Required Hours / Productive Hours per HC) / Occupancy + Manual HC Add-On + Buffer</span>
+              <p>Uses required hours, productive hours, occupancy, and buffer to estimate required HC.</p>
+              <span class="formula">Required HC = (Required Hours / (Productive Hours per HC × Occupancy)) × (1 + Buffer %)</span>
+            </div>
+
+            <div class="formula-card">
+              <h4>Planning Mode Logic</h4>
+              <p>Switches between demand-based or manual headcount requirement.</p>
+              <span class="formula">Volume Based = Volume HC | HC Based = Manual Required HC | Hybrid = Volume HC + Manual Required HC</span>
             </div>
 
             <div class="formula-card">
@@ -1272,7 +886,7 @@
             <div class="formula-card">
               <h4>Graduate HC</h4>
               <p>HC graduating from training after training duration and pass rate adjustment.</p>
-              <span class="formula">Graduate HC = Training Batch HC × Pass Rate %</span>
+              <span class="formula">Graduate HC = Actual Class HC × Pass Rate %</span>
             </div>
 
             <div class="formula-card">
@@ -1284,19 +898,19 @@
             <div class="formula-card">
               <h4>SME Effective HC</h4>
               <p>Counts only the productive portion of SME HC.</p>
-              <span class="formula">SME Effective HC = SME HC × SME Productive %</span>
+              <span class="formula">Percent Mode: SME Eff HC = SME HC × SME Productive % | Hours Mode: SME Eff HC = SME HC × (SME Productive Hours / Productive Hours per HC)</span>
             </div>
 
             <div class="formula-card">
               <h4>Off-Roster Effective HC</h4>
-              <p>Counts only the productive portion of Off-Roster HC.</p>
-              <span class="formula">Off-Roster Effective HC = Off-Roster HC × Off-Roster Productive %</span>
+              <p>Counts only the productive portion of off-roster HC.</p>
+              <span class="formula">Percent Mode: Off Eff HC = Off HC × Off Productive % | Hours Mode: Off Eff HC = Off HC × (Off Productive Hours / Productive Hours per HC)</span>
             </div>
 
             <div class="formula-card">
               <h4>Net HC Before Shrinkage</h4>
-              <p>Supply after key additions and deductions, before shrinkage is applied.</p>
-              <span class="formula">Net HC Before Shrinkage = Gross Available HC - Attrition HC - Non-Productive Support Deductions + Effective Support Contributions</span>
+              <p>Supply after additions and deductions, before shrinkage is applied.</p>
+              <span class="formula">Net HC Before Shrinkage = Gross Available HC - Attrition HC - SME HC - Off-Roster HC + SME Eff HC + Off Eff HC</span>
             </div>
 
             <div class="formula-card">
@@ -1308,31 +922,1037 @@
             <div class="formula-card">
               <h4>OT Equivalent HC</h4>
               <p>Converts OT hours into HC equivalent.</p>
-              <span class="formula">OT Eq HC = OT Hours / Productive Hours per HC per Week</span>
+              <span class="formula">OT Eq HC = OT Hours / OT Conversion Base Hours</span>
             </div>
 
             <div class="formula-card">
               <h4>Final Available HC</h4>
-              <p>Total effective supply after shrinkage and OT contribution.</p>
+              <p>Total effective supply after shrinkage, OT, and nesting contribution.</p>
               <span class="formula">Final Available HC = Effective HC + OT Eq HC + Nesting Effective HC</span>
-            </div>
-
-            <div class="formula-card">
-              <h4>Gap</h4>
-              <p>Final capacity position versus requirement.</p>
-              <span class="formula">Gap = Final Available HC - Required HC</span>
             </div>
 
             <div class="formula-card">
               <h4>Monthly Weighted Roll-Up</h4>
               <p>Allocates weekly values into months based on actual number of calendar days falling in that month.</p>
-              <span class="formula">Monthly Value = Σ(Weekly Value × Days in Month Portion / 7)</span>
+              <span class="formula">Monthly Metric = Σ(Weekly Metric × Days in That Month Portion) / Days Covered</span>
             </div>
           </div>
         </div>
       </details>
     </section>
-
   </div>
+
+  <script>
+    const defaults = {
+      planningMode: "Hybrid",
+      displayView: "Combined View",
+      planningStartDate: "2026-01-02",
+      weekPattern: "Fri-Thu",
+      planningHorizon: 16,
+      startingOpeningHC: 250,
+      bufferPct: 0,
+      occupancyPct: 85,
+      productiveHoursPerHC: 37.5,
+      targetShrinkagePct: 20,
+      plannedShrinkagePct: 12,
+      unplannedShrinkagePct: 8,
+      totalShrinkagePct: 20,
+      targetAttritionPct: 3,
+      expectedAttritionPct: 3,
+      trainingDurationWeeks: 4,
+      nestingDurationWeeks: 2,
+      passRatePct: 90,
+      nestingProductivityPct: 65,
+      supportMode: "Percent",
+      otBaseHours: 37.5,
+      smeProductivePct: 40,
+      offRosterProductivePct: 25,
+      smeProductiveHours: 15,
+      offRosterProductiveHours: 9
+    };
+
+    let state = {
+      weeks: [],
+      computed: [],
+      monthly: []
+    };
+
+    let capacityChart = null;
+    let pipelineChart = null;
+
+    function $(id){ return document.getElementById(id); }
+
+    function toNum(v, fallback = 0){
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function clamp(n, min, max){
+      return Math.min(Math.max(n, min), max);
+    }
+
+    function pct(n){
+      return `${round(n,1).toFixed(1)}%`;
+    }
+
+    function round(n, d = 1){
+      const p = Math.pow(10, d);
+      return Math.round((n + Number.EPSILON) * p) / p;
+    }
+
+    function fmtNum(n, d = 1){
+      return round(n, d).toLocaleString(undefined, {
+        minimumFractionDigits: d,
+        maximumFractionDigits: d
+      });
+    }
+
+    function fmtNum0(n){
+      return Math.round(n).toLocaleString();
+    }
+
+    function dateFromInput(value){
+      const [y,m,d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function addDays(date, days){
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function formatDate(date){
+      return date.toLocaleDateString("en-GB", {
+        day:"2-digit",
+        month:"short",
+        year:"2-digit"
+      }).replace(/ /g, "-");
+    }
+
+    function formatDateLong(date){
+      return date.toLocaleDateString("en-GB", {
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+      });
+    }
+
+    function monthKey(date){
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+    }
+
+    function monthLabelFromKey(key){
+      const [y,m] = key.split("-").map(Number);
+      return new Date(y, m - 1, 1).toLocaleDateString("en-GB", {
+        month:"short",
+        year:"2-digit"
+      });
+    }
+
+    function weekdayName(date){
+      return date.toLocaleDateString("en-GB", { weekday:"short" });
+    }
+
+    function safeId(str){
+      return str.replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+
+    function getSettings(){
+      const s = {
+        planningMode: $("planningMode").value,
+        displayView: $("displayView").value,
+        planningStartDate: $("planningStartDate").value,
+        weekPattern: $("weekPattern").value,
+        planningHorizon: clamp(toNum($("planningHorizon").value, 1), 1, 104),
+        startingOpeningHC: toNum($("startingOpeningHC").value, 0),
+        bufferPct: toNum($("bufferPct").value, 0) / 100,
+        occupancyPct: clamp(toNum($("occupancyPct").value, 1), 1, 100) / 100,
+        productiveHoursPerHC: Math.max(toNum($("productiveHoursPerHC").value, 1), 0.1),
+        targetShrinkagePct: toNum($("targetShrinkagePct").value, 0) / 100,
+        plannedShrinkagePct: toNum($("plannedShrinkagePct").value, 0) / 100,
+        unplannedShrinkagePct: toNum($("unplannedShrinkagePct").value, 0) / 100,
+        targetAttritionPct: toNum($("targetAttritionPct").value, 0) / 100,
+        expectedAttritionPct: toNum($("expectedAttritionPct").value, 0) / 100,
+        trainingDurationWeeks: Math.max(Math.round(toNum($("trainingDurationWeeks").value, 1)), 1),
+        nestingDurationWeeks: Math.max(Math.round(toNum($("nestingDurationWeeks").value, 1)), 1),
+        passRatePct: toNum($("passRatePct").value, 0) / 100,
+        nestingProductivityPct: toNum($("nestingProductivityPct").value, 0) / 100,
+        supportMode: $("supportMode").value,
+        otBaseHours: Math.max(toNum($("otBaseHours").value, 1), 0.1),
+        smeProductivePct: toNum($("smeProductivePct").value, 0) / 100,
+        offRosterProductivePct: toNum($("offRosterProductivePct").value, 0) / 100,
+        smeProductiveHours: Math.max(toNum($("smeProductiveHours").value, 0), 0),
+        offRosterProductiveHours: Math.max(toNum($("offRosterProductiveHours").value, 0), 0)
+      };
+
+      $("totalShrinkagePct").value = round((s.plannedShrinkagePct + s.unplannedShrinkagePct) * 100, 1);
+      return s;
+    }
+
+    function setDefaults(){
+      Object.entries(defaults).forEach(([key, value]) => {
+        if ($(key)) $(key).value = value;
+      });
+      $("totalShrinkagePct").value = defaults.totalShrinkagePct;
+    }
+
+    function createWeek(index, startDate){
+      return {
+        index,
+        label: `W${String(index + 1).padStart(2, "0")}`,
+        startDate,
+        endDate: addDays(startDate, 6),
+        forecastVolume: 0,
+        aht: 0,
+        manualRequiredHC: 0,
+        plannedClassHC: 0,
+        actualClassHC: 0,
+        transfersIn: 0,
+        transfersOut: 0,
+        smeHC: 0,
+        offRosterHC: 0,
+        otHours: 0,
+        actualAttritionHC: 0,
+        actualShrinkagePct: 0
+      };
+    }
+
+    function syncWeeks(preserve = true){
+      const s = getSettings();
+      const start = dateFromInput(s.planningStartDate);
+      const existing = preserve ? state.weeks : [];
+      const newWeeks = [];
+
+      for(let i = 0; i < s.planningHorizon; i++){
+        const startDate = addDays(start, i * 7);
+        const prev = existing[i];
+        const week = createWeek(i, startDate);
+
+        if(prev){
+          Object.assign(week, {
+            forecastVolume: prev.forecastVolume,
+            aht: prev.aht,
+            manualRequiredHC: prev.manualRequiredHC,
+            plannedClassHC: prev.plannedClassHC,
+            actualClassHC: prev.actualClassHC,
+            transfersIn: prev.transfersIn,
+            transfersOut: prev.transfersOut,
+            smeHC: prev.smeHC,
+            offRosterHC: prev.offRosterHC,
+            otHours: prev.otHours,
+            actualAttritionHC: prev.actualAttritionHC,
+            actualShrinkagePct: prev.actualShrinkagePct
+          });
+        }
+
+        newWeeks.push(week);
+      }
+
+      state.weeks = newWeeks;
+    }
+
+    function loadSampleData(){
+      setDefaults();
+      syncWeeks(false);
+
+      const sample = [
+        [125000,420,5,20,18,0,0,6,4,240,5,19.5],
+        [128500,415,5,0,0,2,0,6,4,260,4,20.4],
+        [130200,418,6,15,15,0,1,7,4,220,3,21.0],
+        [127000,410,4,0,0,0,0,7,5,180,4,20.8],
+        [132000,425,6,18,16,0,0,7,5,260,4,20.2],
+        [135500,430,7,0,0,1,0,8,5,290,5,19.7],
+        [137000,432,7,12,12,0,1,8,5,300,5,20.1],
+        [133500,427,6,0,0,0,0,8,5,250,4,20.0],
+        [139000,436,8,14,14,0,0,8,6,320,5,20.6],
+        [142500,440,8,0,0,1,0,9,6,340,6,20.9],
+        [144000,442,8,10,10,0,1,9,6,360,5,20.3],
+        [146000,445,9,0,0,0,0,9,6,330,5,20.0],
+        [148500,448,9,16,15,0,0,10,6,370,6,20.7],
+        [150000,450,9,0,0,1,0,10,6,390,6,20.9],
+        [151500,452,10,8,8,0,1,10,6,410,6,20.4],
+        [153000,455,10,0,0,0,0,10,6,380,6,20.1]
+      ];
+
+      state.weeks.forEach((w, i) => {
+        const row = sample[i] || [0,0,0,0,0,0,0,0,0,0,0,20];
+        w.forecastVolume = row[0];
+        w.aht = row[1];
+        w.manualRequiredHC = row[2];
+        w.plannedClassHC = row[3];
+        w.actualClassHC = row[4];
+        w.transfersIn = row[5];
+        w.transfersOut = row[6];
+        w.smeHC = row[7];
+        w.offRosterHC = row[8];
+        w.otHours = row[9];
+        w.actualAttritionHC = row[10];
+        w.actualShrinkagePct = row[11];
+      });
+
+      calculateAndRender();
+    }
+
+    function updateWeekField(index, field, value){
+      if(!state.weeks[index]) return;
+      state.weeks[index][field] = toNum(value, 0);
+      calculateAndRender(false);
+    }
+
+    function computeModel(){
+      const s = getSettings();
+      const computed = [];
+      let currentOpeningHC = s.startingOpeningHC;
+
+      const passRate = s.passRatePct;
+      const nestingProd = s.nestingProductivityPct;
+
+      for(let i = 0; i < state.weeks.length; i++){
+        const w = state.weeks[i];
+
+        let trainingHC = 0;
+        let graduateHC = 0;
+        let nestingHC = 0;
+        let fullyReleasedHC = 0;
+
+        for(let j = 0; j < state.weeks.length; j++){
+          const batch = state.weeks[j].actualClassHC || 0;
+          if(batch <= 0) continue;
+
+          const gradValue = batch * passRate;
+          const gradWeek = j + s.trainingDurationWeeks;
+          const firstNestingWeek = gradWeek;
+          const lastNestingWeek = gradWeek + s.nestingDurationWeeks - 1;
+          const fullyWeek = gradWeek + s.nestingDurationWeeks;
+
+          if(i >= j && i <= j + s.trainingDurationWeeks - 1){
+            trainingHC += batch;
+          }
+          if(i === gradWeek){
+            graduateHC += gradValue;
+          }
+          if(i >= firstNestingWeek && i <= lastNestingWeek){
+            nestingHC += gradValue;
+          }
+          if(i === fullyWeek){
+            fullyReleasedHC += gradValue;
+          }
+        }
+
+        const requiredHours = (w.forecastVolume * w.aht) / 3600;
+        const volumeRequiredHC = s.occupancyPct > 0
+          ? (requiredHours / (s.productiveHoursPerHC * s.occupancyPct)) * (1 + s.bufferPct)
+          : 0;
+
+        let requiredHC = volumeRequiredHC;
+        if(s.planningMode === "HC Based"){
+          requiredHC = w.manualRequiredHC;
+        } else if(s.planningMode === "Hybrid"){
+          requiredHC = volumeRequiredHC + w.manualRequiredHC;
+        }
+
+        const targetAttrPct = s.targetAttritionPct;
+        const actualAttrPct = currentOpeningHC > 0 ? (w.actualAttritionHC / currentOpeningHC) : 0;
+        const targetShrinkPct = s.targetShrinkagePct;
+        const actualShrinkPct = (w.actualShrinkagePct || 0) / 100;
+
+        const smeEffHC = s.supportMode === "Hours"
+          ? w.smeHC * (s.smeProductiveHours / s.productiveHoursPerHC)
+          : w.smeHC * s.smeProductivePct;
+
+        const offEffHC = s.supportMode === "Hours"
+          ? w.offRosterHC * (s.offRosterProductiveHours / s.productiveHoursPerHC)
+          : w.offRosterHC * s.offRosterProductivePct;
+
+        const grossAvailableHC = currentOpeningHC + w.transfersIn - w.transfersOut;
+        const netBeforeShrink = grossAvailableHC - w.actualAttritionHC - w.smeHC - w.offRosterHC + smeEffHC + offEffHC;
+        const effectiveHC = Math.max(0, netBeforeShrink * (1 - actualShrinkPct));
+        const otEqHC = w.otHours / s.otBaseHours;
+        const nestingEffectiveHC = nestingHC * nestingProd;
+        const finalAvailableHC = effectiveHC + otEqHC + nestingEffectiveHC;
+        const gap = finalAvailableHC - requiredHC;
+        const endHC = Math.max(0, currentOpeningHC + w.transfersIn - w.transfersOut - w.actualAttritionHC + fullyReleasedHC);
+
+        let statusClass = "gap";
+        let statusText = "Gap";
+        if(gap >= 0){
+          statusClass = "safe";
+          statusText = "Safe";
+        } else if(gap > -5){
+          statusClass = "risk";
+          statusText = "Risk";
+        }
+
+        computed.push({
+          ...w,
+          openingHC: currentOpeningHC,
+          requiredHours,
+          volumeRequiredHC,
+          requiredHC,
+          trainingHC,
+          graduateHC,
+          nestingHC,
+          nestingEffectiveHC,
+          fullyReleasedHC,
+          targetAttrPct,
+          actualAttrPct,
+          targetShrinkPct,
+          actualShrinkPct,
+          smeEffHC,
+          offEffHC,
+          grossAvailableHC,
+          netBeforeShrink,
+          effectiveHC,
+          otEqHC,
+          finalAvailableHC,
+          gap,
+          endHC,
+          statusClass,
+          statusText
+        });
+
+        currentOpeningHC = endHC;
+      }
+
+      state.computed = computed;
+      state.monthly = buildMonthly(computed);
+    }
+
+    function buildMonthly(computed){
+      const monthlyMap = new Map();
+
+      computed.forEach((w) => {
+        const dailyDates = [];
+        for(let i = 0; i < 7; i++) dailyDates.push(addDays(w.startDate, i));
+
+        const counts = {};
+        dailyDates.forEach((d) => {
+          const key = monthKey(d);
+          counts[key] = (counts[key] || 0) + 1;
+        });
+
+        Object.entries(counts).forEach(([key, days]) => {
+          if(!monthlyMap.has(key)){
+            monthlyMap.set(key, {
+              key,
+              month: monthLabelFromKey(key),
+              daysCovered: 0,
+              requiredHCWeightedSum: 0,
+              finalAvailableHCWeightedSum: 0,
+              openingHCWeightedSum: 0,
+              trainingHCWeightedSum: 0,
+              graduateHCWeightedSum: 0,
+              nestingHCWeightedSum: 0,
+              nestingEffWeightedSum: 0,
+              attritionHCWeightedSum: 0,
+              targetAttrWeightedSum: 0,
+              actualAttrWeightedSum: 0,
+              targetShrinkWeightedSum: 0,
+              actualShrinkWeightedSum: 0,
+              smeHCWeightedSum: 0,
+              smeEffWeightedSum: 0,
+              offHCWeightedSum: 0,
+              offEffWeightedSum: 0,
+              otHoursTotal: 0,
+              lastDate: null,
+              endMonthHC: 0
+            });
+          }
+
+          const m = monthlyMap.get(key);
+          m.daysCovered += days;
+          m.requiredHCWeightedSum += w.requiredHC * days;
+          m.finalAvailableHCWeightedSum += w.finalAvailableHC * days;
+          m.openingHCWeightedSum += w.openingHC * days;
+          m.trainingHCWeightedSum += w.trainingHC * days;
+          m.graduateHCWeightedSum += w.graduateHC * days;
+          m.nestingHCWeightedSum += w.nestingHC * days;
+          m.nestingEffWeightedSum += w.nestingEffectiveHC * days;
+          m.attritionHCWeightedSum += w.actualAttritionHC * days / 7;
+          m.targetAttrWeightedSum += w.targetAttrPct * days;
+          m.actualAttrWeightedSum += w.actualAttrPct * days;
+          m.targetShrinkWeightedSum += w.targetShrinkPct * days;
+          m.actualShrinkWeightedSum += w.actualShrinkPct * days;
+          m.smeHCWeightedSum += w.smeHC * days;
+          m.smeEffWeightedSum += w.smeEffHC * days;
+          m.offHCWeightedSum += w.offRosterHC * days;
+          m.offEffWeightedSum += w.offEffHC * days;
+          m.otHoursTotal += w.otHours * (days / 7);
+
+          const datesInMonth = dailyDates.filter(d => monthKey(d) === key);
+          const lastRelevantDate = datesInMonth[datesInMonth.length - 1];
+          if(!m.lastDate || lastRelevantDate > m.lastDate){
+            m.lastDate = lastRelevantDate;
+            m.endMonthHC = w.endHC;
+          }
+        });
+      });
+
+      return Array.from(monthlyMap.values()).sort((a,b) => a.key.localeCompare(b.key)).map((m) => {
+        const d = Math.max(m.daysCovered, 1);
+        const weightedRequiredHC = m.requiredHCWeightedSum / d;
+        const weightedFinalAvailableHC = m.finalAvailableHCWeightedSum / d;
+        return {
+          month: m.month,
+          key: m.key,
+          daysCovered: m.daysCovered,
+          weightedRequiredHC,
+          weightedFinalAvailableHC,
+          netGap: weightedFinalAvailableHC - weightedRequiredHC,
+          openingHC: m.openingHCWeightedSum / d,
+          trainingHC: m.trainingHCWeightedSum / d,
+          graduateHC: m.graduateHCWeightedSum / d,
+          nestingHC: m.nestingHCWeightedSum / d,
+          nestingEffHC: m.nestingEffWeightedSum / d,
+          attritionHC: m.attritionHCWeightedSum,
+          targetAttrPct: m.targetAttrWeightedSum / d,
+          actualAttrPct: m.actualAttrWeightedSum / d,
+          targetShrinkPct: m.targetShrinkWeightedSum / d,
+          actualShrinkPct: m.actualShrinkWeightedSum / d,
+          smeHC: m.smeHCWeightedSum / d,
+          smeEffHC: m.smeEffWeightedSum / d,
+          offHC: m.offHCWeightedSum / d,
+          offEffHC: m.offEffWeightedSum / d,
+          otHours: m.otHoursTotal,
+          otEqHC: m.otHoursTotal / getSettings().otBaseHours,
+          endMonthHC: m.endMonthHC
+        };
+      });
+    }
+
+    function renderSummaryCards(){
+      const c = state.computed[0];
+      const latest = state.computed[state.computed.length - 1];
+      if(!c){
+        $("summaryCards").innerHTML = "";
+        return;
+      }
+
+      const avgAttr = state.computed.reduce((a,b) => a + b.actualAttrPct, 0) / state.computed.length;
+      const avgShrink = state.computed.reduce((a,b) => a + b.actualShrinkPct, 0) / state.computed.length;
+
+      const cards = [
+        ["Required HC", fmtNum(c.requiredHC), "Current week requirement", "value-primary"],
+        ["Final Available HC", fmtNum(c.finalAvailableHC), "After shrinkage, nesting and OT", ""],
+        ["Net Gap", fmtNum(c.gap), "Current week capacity position", c.gap >= 0 ? "value-success" : "value-danger"],
+        ["Training HC", fmtNum(c.trainingHC), "Currently in training", "value-accent"],
+        ["Graduate HC", fmtNum(c.graduateHC), "Current week graduation", "value-success"],
+        ["Nesting HC", fmtNum(c.nestingHC), "Current nesting population", ""],
+        ["Avg Attrition %", pct(avgAttr * 100), `Target ${pct(getSettings().targetAttritionPct * 100)}`, avgAttr <= getSettings().targetAttritionPct ? "value-success" : "value-danger"],
+        ["Avg Shrinkage %", pct(avgShrink * 100), `Target ${pct(getSettings().targetShrinkagePct * 100)}`, avgShrink <= getSettings().targetShrinkagePct ? "value-success" : "value-danger"]
+      ];
+
+      $("summaryCards").innerHTML = cards.map(([label, value, mini, cls]) => `
+        <div class="metric">
+          <div class="label">${label}</div>
+          <div class="value ${cls}">${value}</div>
+          <div class="mini">${mini}</div>
+        </div>
+      `).join("");
+
+      if(latest){}
+    }
+
+    function renderCalendarInfo(){
+      const s = getSettings();
+      const startDate = dateFromInput(s.planningStartDate);
+
+      $("calendarPlanningStart").textContent = formatDateLong(startDate);
+      $("calendarWeekPattern").textContent = s.weekPattern;
+      $("calendarWeeksGenerated").textContent = s.planningHorizon;
+      $("calendarRollup").textContent = s.rollupMode || "Calendar Weighted";
+      $("calendarSupportMode").textContent = s.supportMode;
+
+      const expectedStartByPattern = {
+        "Mon-Sun": "Mon",
+        "Sun-Sat": "Sun",
+        "Fri-Thu": "Fri"
+      };
+
+      if(expectedStartByPattern[s.weekPattern]){
+        const actual = weekdayName(startDate);
+        if(actual !== expectedStartByPattern[s.weekPattern]){
+          $("weekPatternNote").textContent = `Note: selected start date begins on ${actual}, while the chosen week pattern is ${s.weekPattern}. The planner will still use your selected start date and roll forward by 7 days.`;
+        } else {
+          $("weekPatternNote").textContent = "";
+        }
+      } else {
+        $("weekPatternNote").textContent = "Custom 7-day cycle uses the selected start date and then adds 7 days for each next week.";
+      }
+    }
+
+    function renderDemandTable(){
+      $("demandTableBody").innerHTML = state.computed.map((w, i) => `
+        <tr>
+          <td>${w.label}</td>
+          <td>${formatDate(w.startDate)}</td>
+          <td>${formatDate(w.endDate)}</td>
+          <td><input class="small-input" type="number" value="${w.forecastVolume}" data-week="${i}" data-field="forecastVolume"></td>
+          <td><input class="small-input" type="number" value="${w.aht}" data-week="${i}" data-field="aht"></td>
+          <td><input class="small-input" type="number" value="${w.manualRequiredHC}" data-week="${i}" data-field="manualRequiredHC"></td>
+          <td>${fmtNum(w.requiredHours)}</td>
+          <td>${fmtNum(w.requiredHC)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderSupplyTable(){
+      $("supplyTableBody").innerHTML = state.computed.map((w, i) => `
+        <tr>
+          <td>${w.label}</td>
+          <td>${fmtNum(w.openingHC)}</td>
+          <td><input class="small-input" type="number" value="${w.plannedClassHC}" data-week="${i}" data-field="plannedClassHC"></td>
+          <td><input class="small-input" type="number" value="${w.actualClassHC}" data-week="${i}" data-field="actualClassHC"></td>
+          <td><input class="small-input" type="number" value="${w.transfersIn}" data-week="${i}" data-field="transfersIn"></td>
+          <td><input class="small-input" type="number" value="${w.transfersOut}" data-week="${i}" data-field="transfersOut"></td>
+          <td><input class="small-input" type="number" value="${w.smeHC}" data-week="${i}" data-field="smeHC"></td>
+          <td><input class="small-input" type="number" value="${w.offRosterHC}" data-week="${i}" data-field="offRosterHC"></td>
+          <td><input class="small-input" type="number" value="${w.otHours}" data-week="${i}" data-field="otHours"></td>
+          <td>${pct(w.targetAttrPct * 100)}</td>
+          <td><input class="small-input" type="number" value="${w.actualAttritionHC}" data-week="${i}" data-field="actualAttritionHC"></td>
+          <td>${pct(w.actualAttrPct * 100)}</td>
+          <td>${pct(w.targetShrinkPct * 100)}</td>
+          <td><input class="small-input" type="number" value="${round(w.actualShrinkagePct * 100,1)}" data-week="${i}" data-field="actualShrinkagePct"></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderTrainingTable(){
+      $("trainingTableBody").innerHTML = state.computed.map((w) => `
+        <tr>
+          <td>${w.label}</td>
+          <td>${formatDate(w.startDate)}</td>
+          <td>${formatDate(w.endDate)}</td>
+          <td>${fmtNum(w.trainingHC)}</td>
+          <td>${fmtNum(w.graduateHC)}</td>
+          <td>${fmtNum(w.nestingHC)}</td>
+          <td>${fmtNum(w.nestingEffectiveHC)}</td>
+          <td>${fmtNum(w.fullyReleasedHC)}</td>
+          <td>${pct(w.targetShrinkPct * 100)}</td>
+          <td>${pct(w.actualShrinkPct * 100)}</td>
+          <td>${pct(w.targetAttrPct * 100)}</td>
+          <td>${pct(w.actualAttrPct * 100)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderWeeklyCapacityTable(){
+      $("weeklyCapacityBody").innerHTML = state.computed.map((w) => `
+        <tr>
+          <td>${w.label}</td>
+          <td>${formatDate(w.startDate)}</td>
+          <td>${formatDate(w.endDate)}</td>
+          <td>${fmtNum(w.requiredHC)}</td>
+          <td>${fmtNum(w.openingHC)}</td>
+          <td>${fmtNum(w.trainingHC)}</td>
+          <td>${fmtNum(w.graduateHC)}</td>
+          <td>${fmtNum(w.nestingHC)}</td>
+          <td>${fmtNum(w.nestingEffectiveHC)}</td>
+          <td>${fmtNum(w.actualAttritionHC)}</td>
+          <td>${pct(w.targetAttrPct * 100)}</td>
+          <td>${pct(w.actualAttrPct * 100)}</td>
+          <td>${pct(w.targetShrinkPct * 100)}</td>
+          <td>${pct(w.actualShrinkPct * 100)}</td>
+          <td>${fmtNum(w.smeHC)}</td>
+          <td>${fmtNum(w.smeEffHC)}</td>
+          <td>${fmtNum(w.offRosterHC)}</td>
+          <td>${fmtNum(w.offEffHC)}</td>
+          <td>${fmtNum(w.grossAvailableHC)}</td>
+          <td>${fmtNum(w.netBeforeShrink)}</td>
+          <td>${fmtNum(w.effectiveHC)}</td>
+          <td>${fmtNum(w.otHours)}</td>
+          <td>${fmtNum(w.otEqHC)}</td>
+          <td>${fmtNum(w.finalAvailableHC)}</td>
+          <td class="${w.gap >= 0 ? 'value-success' : 'value-danger'}">${fmtNum(w.gap)}</td>
+          <td>${fmtNum(w.endHC)}</td>
+          <td><span class="status ${w.statusClass}">${w.statusText}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderMonthlyTable(){
+      $("monthlyTableBody").innerHTML = state.monthly.map((m) => `
+        <tr>
+          <td>${m.month}</td>
+          <td>${m.daysCovered}</td>
+          <td>${fmtNum(m.weightedRequiredHC)}</td>
+          <td>${fmtNum(m.weightedFinalAvailableHC)}</td>
+          <td class="${m.netGap >= 0 ? 'value-success' : 'value-danger'}">${fmtNum(m.netGap)}</td>
+          <td>${fmtNum(m.openingHC)}</td>
+          <td>${fmtNum(m.trainingHC)}</td>
+          <td>${fmtNum(m.graduateHC)}</td>
+          <td>${fmtNum(m.nestingHC)}</td>
+          <td>${fmtNum(m.nestingEffHC)}</td>
+          <td>${fmtNum(m.attritionHC)}</td>
+          <td>${pct(m.targetAttrPct * 100)}</td>
+          <td>${pct(m.actualAttrPct * 100)}</td>
+          <td>${pct(m.targetShrinkPct * 100)}</td>
+          <td>${pct(m.actualShrinkPct * 100)}</td>
+          <td>${fmtNum(m.smeHC)}</td>
+          <td>${fmtNum(m.smeEffHC)}</td>
+          <td>${fmtNum(m.offHC)}</td>
+          <td>${fmtNum(m.offEffHC)}</td>
+          <td>${fmtNum(m.otHours)}</td>
+          <td>${fmtNum(m.otEqHC)}</td>
+          <td>${fmtNum(m.endMonthHC)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function attachTableInputEvents(){
+      document.querySelectorAll("[data-week][data-field]").forEach((el) => {
+        el.addEventListener("change", (e) => {
+          const weekIndex = Number(e.target.dataset.week);
+          const field = e.target.dataset.field;
+          updateWeekField(weekIndex, field, e.target.value);
+        });
+      });
+    }
+
+    function renderCharts(){
+      const labels = state.computed.map(w => w.label);
+      const req = state.computed.map(w => round(w.requiredHC, 1));
+      const avail = state.computed.map(w => round(w.finalAvailableHC, 1));
+      const training = state.computed.map(w => round(w.trainingHC, 1));
+      const graduate = state.computed.map(w => round(w.graduateHC, 1));
+      const nesting = state.computed.map(w => round(w.nestingHC, 1));
+      const attr = state.computed.map(w => round(w.actualAttritionHC, 1));
+
+      if(capacityChart) capacityChart.destroy();
+      if(pipelineChart) pipelineChart.destroy();
+
+      capacityChart = new Chart($("capacityChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "Required HC", data: req, tension: 0.25, fill: false },
+            { label: "Final Available HC", data: avail, tension: 0.25, fill: false }
+          ]
+        },
+        options: {
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ position:"top" } },
+          scales:{ y:{ beginAtZero:false } }
+        }
+      });
+
+      pipelineChart = new Chart($("pipelineChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Training HC", data: training },
+            { label: "Graduate HC", data: graduate },
+            { label: "Nesting HC", data: nesting },
+            { label: "Attrition HC", data: attr }
+          ]
+        },
+        options: {
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ position:"top" } },
+          scales:{ y:{ beginAtZero:true } }
+        }
+      });
+    }
+
+    function toggleSections(){
+      const view = $("displayView").value;
+      const weeklyVisible = view !== "Monthly View";
+      const monthlyVisible = view !== "Weekly View";
+
+      $("weeklySections").style.display = weeklyVisible ? "grid" : "none";
+      $("trainingSection").style.display = weeklyVisible ? "block" : "none";
+      $("weeklyCapacitySection").style.display = weeklyVisible ? "block" : "none";
+      document.querySelector(".grid.grid-2[style='margin-top:18px;']")?.style;
+      $("monthlySection").style.display = monthlyVisible ? "block" : "none";
+    }
+
+    function calculateAndRender(sync = true){
+      if(sync) syncWeeks(true);
+      computeModel();
+      renderSummaryCards();
+      renderCalendarInfo();
+      renderDemandTable();
+      renderSupplyTable();
+      renderTrainingTable();
+      renderWeeklyCapacityTable();
+      renderMonthlyTable();
+      attachTableInputEvents();
+      renderCharts();
+      toggleSections();
+    }
+
+    function objectsToCsv(name, rows){
+      if(!rows.length) return `${name}\nNo data\n`;
+      const headers = Object.keys(rows[0]);
+      const escape = (v) => {
+        const s = String(v ?? "");
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const lines = [
+        name,
+        headers.join(","),
+        ...rows.map(r => headers.map(h => escape(r[h])).join(","))
+      ];
+      return lines.join("\n");
+    }
+
+    function exportCsv(){
+      const weeklyRows = state.computed.map(w => ({
+        Week: w.label,
+        Start_Date: formatDate(w.startDate),
+        End_Date: formatDate(w.endDate),
+        Forecast_Volume: round(w.forecastVolume, 0),
+        AHT_Seconds: round(w.aht, 0),
+        Manual_Required_HC: round(w.manualRequiredHC, 1),
+        Required_Hours: round(w.requiredHours, 1),
+        Required_HC: round(w.requiredHC, 1),
+        Opening_HC: round(w.openingHC, 1),
+        Training_HC: round(w.trainingHC, 1),
+        Graduate_HC: round(w.graduateHC, 1),
+        Nesting_HC: round(w.nestingHC, 1),
+        Nesting_Effective_HC: round(w.nestingEffectiveHC, 1),
+        Attrition_HC: round(w.actualAttritionHC, 1),
+        Target_Attrition_Pct: round(w.targetAttrPct * 100, 1),
+        Actual_Attrition_Pct: round(w.actualAttrPct * 100, 1),
+        Target_Shrinkage_Pct: round(w.targetShrinkPct * 100, 1),
+        Actual_Shrinkage_Pct: round(w.actualShrinkPct * 100, 1),
+        SME_HC: round(w.smeHC, 1),
+        SME_Effective_HC: round(w.smeEffHC, 1),
+        Off_Roster_HC: round(w.offRosterHC, 1),
+        Off_Roster_Effective_HC: round(w.offEffHC, 1),
+        Gross_Available_HC: round(w.grossAvailableHC, 1),
+        Net_HC_Before_Shrinkage: round(w.netBeforeShrink, 1),
+        Effective_HC: round(w.effectiveHC, 1),
+        OT_Hours: round(w.otHours, 1),
+        OT_Equivalent_HC: round(w.otEqHC, 1),
+        Final_Available_HC: round(w.finalAvailableHC, 1),
+        Gap: round(w.gap, 1),
+        End_HC: round(w.endHC, 1),
+        Status: w.statusText
+      }));
+
+      const monthlyRows = state.monthly.map(m => ({
+        Month: m.month,
+        Days_Covered: m.daysCovered,
+        Weighted_Required_HC: round(m.weightedRequiredHC, 1),
+        Weighted_Final_Available_HC: round(m.weightedFinalAvailableHC, 1),
+        Net_Gap: round(m.netGap, 1),
+        Opening_HC: round(m.openingHC, 1),
+        Training_HC: round(m.trainingHC, 1),
+        Graduate_HC: round(m.graduateHC, 1),
+        Nesting_HC: round(m.nestingHC, 1),
+        Nesting_Effective_HC: round(m.nestingEffHC, 1),
+        Attrition_HC: round(m.attritionHC, 1),
+        Target_Attrition_Pct: round(m.targetAttrPct * 100, 1),
+        Actual_Attrition_Pct: round(m.actualAttrPct * 100, 1),
+        Target_Shrinkage_Pct: round(m.targetShrinkPct * 100, 1),
+        Actual_Shrinkage_Pct: round(m.actualShrinkPct * 100, 1),
+        SME_HC: round(m.smeHC, 1),
+        SME_Effective_HC: round(m.smeEffHC, 1),
+        Off_Roster_HC: round(m.offHC, 1),
+        Off_Roster_Effective_HC: round(m.offEffHC, 1),
+        Total_OT_Hours: round(m.otHours, 1),
+        OT_Equivalent_HC: round(m.otEqHC, 1),
+        End_Month_HC: round(m.endMonthHC, 1)
+      }));
+
+      const csvContent = [
+        objectsToCsv("Weekly_Capacity_View", weeklyRows),
+        "",
+        objectsToCsv("Monthly_Weighted_Summary", monthlyRows)
+      ].join("\n\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "long_term_capacity_planner.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function exportExcel(){
+      const s = getSettings();
+      const wb = XLSX.utils.book_new();
+
+      const assumptions = [
+        ["Setting", "Value"],
+        ["Planning Mode", s.planningMode],
+        ["Planning Start Date", s.planningStartDate],
+        ["Week Pattern", s.weekPattern],
+        ["Planning Horizon (Weeks)", s.planningHorizon],
+        ["Starting Opening HC", s.startingOpeningHC],
+        ["Buffer %", s.bufferPct],
+        ["Occupancy %", s.occupancyPct],
+        ["Productive Hours / HC / Week", s.productiveHoursPerHC],
+        ["Target Shrinkage %", s.targetShrinkagePct],
+        ["Planned Shrinkage %", s.plannedShrinkagePct],
+        ["Unplanned Shrinkage %", s.unplannedShrinkagePct],
+        ["Target Attrition %", s.targetAttritionPct],
+        ["Expected Attrition %", s.expectedAttritionPct],
+        ["Training Duration (Weeks)", s.trainingDurationWeeks],
+        ["Nesting Duration (Weeks)", s.nestingDurationWeeks],
+        ["Pass Rate %", s.passRatePct],
+        ["Nesting Productivity %", s.nestingProductivityPct],
+        ["Support Mode", s.supportMode],
+        ["OT Base Hours", s.otBaseHours],
+        ["SME Productive %", s.smeProductivePct],
+        ["Off-Roster Productive %", s.offRosterProductivePct],
+        ["SME Productive Hours", s.smeProductiveHours],
+        ["Off-Roster Productive Hours", s.offRosterProductiveHours]
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(assumptions), "Assumptions");
+
+      const weeklyInputHeader = [[
+        "Week","Start Date","End Date","Forecast Volume","AHT Seconds","Manual Required HC",
+        "Planned Class HC","Actual Class HC","Transfers In","Transfers Out","SME HC",
+        "Off-Roster HC","OT Hours","Actual Attrition HC","Actual Shrinkage %"
+      ]];
+
+      const weeklyInputRows = state.weeks.map(w => [
+        w.label,
+        XLSX.SSF.format("dd-mmm-yy", w.startDate),
+        XLSX.SSF.format("dd-mmm-yy", w.endDate),
+        w.forecastVolume,
+        w.aht,
+        w.manualRequiredHC,
+        w.plannedClassHC,
+        w.actualClassHC,
+        w.transfersIn,
+        w.transfersOut,
+        w.smeHC,
+        w.offRosterHC,
+        w.otHours,
+        w.actualAttritionHC,
+        (w.actualShrinkagePct || 0) / 100
+      ]);
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(weeklyInputHeader.concat(weeklyInputRows)), "Weekly_Input");
+
+      const calcSheet = XLSX.utils.aoa_to_sheet([[
+        "Week","Start Date","End Date","Opening HC","Required Hours","Volume Req HC","Required HC",
+        "Training HC","Graduate HC","Nesting HC","Nesting Eff HC","Fully Prod Released",
+        "Target Attr %","Actual Attr %","Target Shrink %","Actual Shrink %",
+        "SME Eff HC","Off Eff HC","Gross Available HC","Net Before Shrinkage","Effective HC",
+        "OT Eq HC","Final Available HC","Gap","End HC"
+      ]]);
+
+      for(let i = 0; i < state.weeks.length; i++){
+        const r = i + 2;
+        const prevR = r - 1;
+        calcSheet[`A${r}`] = { t:"s", f:`Weekly_Input!A${r}` };
+        calcSheet[`B${r}`] = { t:"s", f:`Weekly_Input!B${r}` };
+        calcSheet[`C${r}`] = { t:"s", f:`Weekly_Input!C${r}` };
+
+        if(i === 0){
+          calcSheet[`D${r}`] = { t:"n", f:`Assumptions!B6` };
+        } else {
+          calcSheet[`D${r}`] = { t:"n", f:`Y${prevR}` };
+        }
+
+        calcSheet[`E${r}`] = { t:"n", f:`(Weekly_Input!D${r}*Weekly_Input!E${r})/3600` };
+        calcSheet[`F${r}`] = { t:"n", f:`(E${r}/(Assumptions!B9*Assumptions!B8))*(1+Assumptions!B7)` };
+        calcSheet[`G${r}`] = { t:"n", f:`IF(Assumptions!B2="HC Based",Weekly_Input!F${r},IF(Assumptions!B2="Hybrid",F${r}+Weekly_Input!F${r},F${r}))` };
+
+        calcSheet[`H${r}`] = { t:"n", f:`SUM(INDEX(Weekly_Input!$H:$H,MAX(2,ROW()-Assumptions!B15+1)):INDEX(Weekly_Input!$H:$H,ROW()))` };
+        calcSheet[`I${r}`] = { t:"n", f:`IF(ROW()-Assumptions!B15>=2,INDEX(Weekly_Input!$H:$H,ROW()-Assumptions!B15)*Assumptions!B17,0)` };
+        calcSheet[`J${r}`] = { t:"n", f:`SUM(INDEX(I:I,MAX(2,ROW()-Assumptions!B16+1)):INDEX(I:I,ROW()))` };
+        calcSheet[`K${r}`] = { t:"n", f:`J${r}*Assumptions!B18` };
+        calcSheet[`L${r}`] = { t:"n", f:`IF(ROW()-Assumptions!B16>=2,INDEX(I:I,ROW()-Assumptions!B16),0)` };
+
+        calcSheet[`M${r}`] = { t:"n", f:`Assumptions!B13` };
+        calcSheet[`N${r}`] = { t:"n", f:`IF(D${r}>0,Weekly_Input!N${r}/D${r},0)` };
+        calcSheet[`O${r}`] = { t:"n", f:`Assumptions!B10` };
+        calcSheet[`P${r}`] = { t:"n", f:`Weekly_Input!O${r}` };
+
+        calcSheet[`Q${r}`] = { t:"n", f:`IF(Assumptions!B19="Hours",Weekly_Input!K${r}*(Assumptions!B22/Assumptions!B9),Weekly_Input!K${r}*Assumptions!B20)` };
+        calcSheet[`R${r}`] = { t:"n", f:`IF(Assumptions!B19="Hours",Weekly_Input!L${r}*(Assumptions!B23/Assumptions!B9),Weekly_Input!L${r}*Assumptions!B21)` };
+
+        calcSheet[`S${r}`] = { t:"n", f:`D${r}+Weekly_Input!I${r}-Weekly_Input!J${r}` };
+        calcSheet[`T${r}`] = { t:"n", f:`S${r}-Weekly_Input!N${r}-Weekly_Input!K${r}-Weekly_Input!L${r}+Q${r}+R${r}` };
+        calcSheet[`U${r}`] = { t:"n", f:`MAX(0,T${r}*(1-P${r}))` };
+        calcSheet[`V${r}`] = { t:"n", f:`Weekly_Input!M${r}/Assumptions!B20` };
+        calcSheet[`W${r}`] = { t:"n", f:`U${r}+V${r}+K${r}` };
+        calcSheet[`X${r}`] = { t:"n", f:`W${r}-G${r}` };
+        calcSheet[`Y${r}`] = { t:"n", f:`MAX(0,D${r}+Weekly_Input!I${r}-Weekly_Input!J${r}-Weekly_Input!N${r}+L${r})` };
+      }
+
+      calcSheet["!ref"] = `A1:Y${state.weeks.length + 1}`;
+      XLSX.utils.book_append_sheet(wb, calcSheet, "Weekly_Calc");
+
+      const monthlyData = [
+        ["Month","Days Covered","Weighted Required HC","Weighted Final Available HC","Net Gap","Opening HC","Training HC","Graduate HC","Nesting HC","Nesting Eff HC","Attrition HC","Target Attr %","Actual Attr %","Target Shrink %","Actual Shrink %","SME HC","SME Eff HC","Off-Roster HC","Off Eff HC","OT Hours","OT Eq HC","End Month HC"]
+      ];
+      state.monthly.forEach(m => {
+        monthlyData.push([
+          m.month, m.daysCovered, round(m.weightedRequiredHC,1), round(m.weightedFinalAvailableHC,1), round(m.netGap,1),
+          round(m.openingHC,1), round(m.trainingHC,1), round(m.graduateHC,1), round(m.nestingHC,1), round(m.nestingEffHC,1),
+          round(m.attritionHC,1), round(m.targetAttrPct,4), round(m.actualAttrPct,4), round(m.targetShrinkPct,4),
+          round(m.actualShrinkPct,4), round(m.smeHC,1), round(m.smeEffHC,1), round(m.offHC,1), round(m.offEffHC,1),
+          round(m.otHours,1), round(m.otEqHC,1), round(m.endMonthHC,1)
+        ]);
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthlyData), "Monthly_Summary");
+
+      const glossary = [
+        ["Metric","Formula"],
+        ["Required Hours","(Forecast Volume × AHT) / 3600"],
+        ["Volume Required HC","(Required Hours / (Productive Hours × Occupancy)) × (1 + Buffer %)"],
+        ["Required HC","Volume Based = Volume HC | HC Based = Manual HC | Hybrid = Volume HC + Manual HC"],
+        ["Training HC","Rolling sum of Actual Class HC across Training Duration weeks"],
+        ["Graduate HC","Actual Class HC from Training Duration weeks ago × Pass Rate"],
+        ["Nesting HC","Rolling sum of Graduate HC across Nesting Duration weeks"],
+        ["Nesting Effective HC","Nesting HC × Nesting Productivity %"],
+        ["SME Effective HC","Percent Mode: SME HC × SME Productive % | Hours Mode: SME HC × SME Hours / Productive Hours"],
+        ["Off Effective HC","Percent Mode: Off HC × Off Productive % | Hours Mode: Off HC × Off Hours / Productive Hours"],
+        ["Net HC Before Shrinkage","Gross Available HC - Attrition HC - SME HC - Off HC + SME Eff HC + Off Eff HC"],
+        ["Effective HC","Net HC Before Shrinkage × (1 - Actual Shrinkage %)"],
+        ["OT Eq HC","OT Hours / OT Base Hours"],
+        ["Final Available HC","Effective HC + OT Eq HC + Nesting Effective HC"],
+        ["Gap","Final Available HC - Required HC"],
+        ["Monthly Weighted Summary","Σ(Weekly Metric × Days in Month Portion) / Days Covered"]
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(glossary), "Formula_Glossary");
+
+      XLSX.writeFile(wb, "long_term_capacity_planner.xlsx");
+    }
+
+    function bindControlEvents(){
+      [
+        "planningMode","displayView","planningStartDate","weekPattern","planningHorizon","startingOpeningHC",
+        "bufferPct","occupancyPct","productiveHoursPerHC","targetShrinkagePct","plannedShrinkagePct",
+        "unplannedShrinkagePct","targetAttritionPct","expectedAttritionPct","trainingDurationWeeks",
+        "nestingDurationWeeks","passRatePct","nestingProductivityPct","supportMode","otBaseHours",
+        "smeProductivePct","offRosterProductivePct","smeProductiveHours","offRosterProductiveHours"
+      ].forEach(id => {
+        $(id).addEventListener("change", () => calculateAndRender(true));
+      });
+
+      $("loadSampleBtn").addEventListener("click", loadSampleData);
+      $("loadSampleBtn2").addEventListener("click", loadSampleData);
+      $("resetBtn").addEventListener("click", () => {
+        setDefaults();
+        syncWeeks(false);
+        calculateAndRender();
+      });
+      $("recalcBtn").addEventListener("click", () => calculateAndRender(true));
+      $("exportCsvBtn").addEventListener("click", exportCsv);
+      $("exportCsvBtn2").addEventListener("click", exportCsv);
+      $("exportExcelBtn").addEventListener("click", exportExcel);
+      $("exportExcelBtn2").addEventListener("click", exportExcel);
+    }
+
+    function init(){
+      setDefaults();
+      bindControlEvents();
+      loadSampleData();
+    }
+
+    init();
+  </script>
 </body>
 </html>
